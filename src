@@ -1,98 +1,117 @@
-int first = 2;
-int second = 3;
-int third = 4;
-int fourth = 5;
-int fifth = 6;
-int sixth = 7;
+//Code by Gus @ arduinomylifeup.com
 
-// pin for the button switch
-int button = 12;
-// value to check state of button switch
-int pressed = 0;
+//Pin to to turn dice on & off
+int button = 2;
+//LED for DICE
+int bottomLeft = 3;
+int middleLeft = 4;
+int upperLeft = 5;
+int middle = 6;
+int bottomRight = 7;
+int middleRight = 8;
+int upperRight = 9;
 
-void setup() {
-  // set all LED pins to OUTPUT
-  for (int i=first; i<=sixth; i++) {
-    pinMode(i, OUTPUT);
-  }
-  // set buttin pin to INPUT
+int state = 0;
+long randNumber; 
+
+//Initial setup
+void setup(){
+  pinMode(bottomLeft, OUTPUT);
+  pinMode(middleLeft, OUTPUT);
+  pinMode(upperLeft, OUTPUT);
+  pinMode(middle, OUTPUT);
+  pinMode(bottomRight, OUTPUT);
+  pinMode(middleRight, OUTPUT);
+  pinMode(upperRight, OUTPUT);
+  
   pinMode(button, INPUT);
-  
-  // initialize random seed by noise from analog pin 0 (should be unconnected)
+  Serial.begin(9600);
   randomSeed(analogRead(0));
-
-
 }
 
-void buildUpTension() {
-  // light LEDs from left to right and back to build up tension
-  // while waiting for the dice to be thrown
-  // left to right
-  for (int i=first; i<=sixth; i++) {
-    if (i!=first) {
-      digitalWrite(i-1, LOW);
-    }
-    digitalWrite(i, HIGH);
+ void loop(){
+  //Read our button if high then run dice
+  if (digitalRead(button) == HIGH && state == 0){
+    state = 1;
+    randNumber = random(1, 7);
     delay(100);
-  }
-  // right to left
-  for (int i=sixth; i>=first; i--) {
-    if (i!=sixth) {
-      digitalWrite(i+1, LOW);
-    }
-    digitalWrite(i, HIGH);
-    delay(100);
-  }
-}
-
-void showNumber(int number) {
-  digitalWrite(first, HIGH);
-  if (number >= 2) {
-    digitalWrite(second, HIGH);
-  }
-  if (number >= 3) {
-    digitalWrite(third, HIGH);    
-  }
-  if (number >= 4) {
-    digitalWrite(fourth, HIGH);    
-  }
-  if (number >= 5) {
-    digitalWrite(fifth, HIGH);    
-  }
-  if (number == 6) {
-    digitalWrite(sixth, HIGH);    
-  }
-}
-
-int throwDice() {
-  // get a random number in the range [1,6]
-  int randNumber = random(1,7);
-  
-  #ifdef DEBUG
     Serial.println(randNumber);
-  #endif
-  
-  return randNumber;
-}
 
-void setAllLEDs(int value) {
-  for (int i=first; i<=sixth; i++) {
-    digitalWrite(i, value);
+    if (randNumber == 6){
+      six();
+    }
+    if (randNumber == 5){
+      five();
+    }
+    if (randNumber == 4){
+      four();
+    }
+    if (randNumber == 3){
+      three();
+    }
+    if (randNumber == 2){
+      two();
+    }
+    if (randNumber == 1){
+      one();
+    }
+    delay(5000);
+    clearAll();
+    state = 0;
   }
 }
 
-void loop() {
+//Create a function for each of our "sides" of the die
+ void six()
+{
+  digitalWrite(bottomLeft, HIGH);
+  digitalWrite(middleLeft, HIGH);
+  digitalWrite(upperLeft, HIGH);
+  digitalWrite(bottomRight, HIGH);
+  digitalWrite(middleRight, HIGH);
+  digitalWrite(upperRight, HIGH);
+}
 
-  // if button is pressed - throw the dice
-  pressed = digitalRead(button);
+void five()
+{
+  digitalWrite(upperLeft, HIGH);
+  digitalWrite(bottomLeft, HIGH);
+  digitalWrite(middle, HIGH);
+  digitalWrite(upperRight, HIGH);
+  digitalWrite(bottomRight, HIGH);
+}
 
-  if (pressed == HIGH) {
-    // remove previous number
-    setAllLEDs(LOW);
-    
-    buildUpTension();
-    int thrownNumber = throwDice();
-    showNumber(thrownNumber);
-  } 
+void four()
+{
+  digitalWrite(upperLeft, HIGH);
+  digitalWrite(bottomLeft, HIGH);
+  digitalWrite(upperRight, HIGH);
+  digitalWrite(bottomRight, HIGH);
+}
 
+void three()
+{
+  digitalWrite(upperLeft, HIGH);
+  digitalWrite(middle, HIGH);
+  digitalWrite(bottomRight, HIGH);
+}
+
+void two()
+{
+  digitalWrite(bottomRight, HIGH);
+  digitalWrite(upperLeft, HIGH);
+}
+
+void one(){
+  digitalWrite(middle, HIGH);
+}
+
+void clearAll(){
+  digitalWrite(bottomLeft, LOW);
+  digitalWrite(middleLeft, LOW);
+  digitalWrite(upperLeft, LOW);
+  digitalWrite(middle,LOW);
+  digitalWrite(bottomRight, LOW);
+  digitalWrite(middleRight, LOW);
+  digitalWrite(upperRight, LOW);
 }
